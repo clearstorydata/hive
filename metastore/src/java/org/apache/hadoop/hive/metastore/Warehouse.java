@@ -137,6 +137,9 @@ public class Warehouse {
    * @return Path with canonical scheme and authority
    */
   public Path getDnsPath(Path path) throws MetaException {
+    if (path.toString().startsWith("pfile:")) {
+      return path;
+    }
     FileSystem fs = getFs(path);
     return (new Path(fs.getUri().getScheme(), fs.getUri().getAuthority(), path
         .toUri().getPath()));
