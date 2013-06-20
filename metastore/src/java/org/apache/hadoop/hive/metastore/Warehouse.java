@@ -395,8 +395,12 @@ public class Warehouse {
 
   public boolean isDir(Path f) throws MetaException {
     FileSystem fs = null;
+    Class<? extends FileSystem> fsClass;
     try {
       fs = getFs(f);
+      if (fs == null) {
+        throw new NullPointerException("getFs returned null for " + f);
+      }
       FileStatus fstatus = fs.getFileStatus(f);
       if (!fstatus.isDir()) {
         return false;
@@ -407,7 +411,8 @@ public class Warehouse {
       closeFs(fs);
       MetaStoreUtils.logAndThrowMetaException(e);
     } catch (NullPointerException e) {
-      throw new RuntimeException("isDir failed for path " + f, e);
+       throw new RuntimeException("isDir failed for path " + f + ", file system: " +
+         (fs == null ? "null" : fs.getClass().getName()), e);
     }
     return true;
   }
