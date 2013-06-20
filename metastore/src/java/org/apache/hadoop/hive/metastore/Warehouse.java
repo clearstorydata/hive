@@ -40,6 +40,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.ProxyLocalFileSystem;
 import org.apache.hadoop.fs.permission.FsAction;
 import org.apache.hadoop.hive.common.FileUtils;
 import org.apache.hadoop.hive.common.JavaUtils;
@@ -100,6 +101,9 @@ public class Warehouse {
    * Helper functions to convert IOException to MetaException
    */
   public FileSystem getFs(Path f) throws MetaException {
+    if (f.toUri().getScheme().equals("pfile")) {
+      return new ProxyLocalFileSystem();
+    }
     try {
       return f.getFileSystem(conf);
     } catch (IOException e) {
