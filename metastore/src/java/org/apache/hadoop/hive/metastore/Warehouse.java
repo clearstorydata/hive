@@ -22,6 +22,8 @@ import static org.apache.hadoop.hive.metastore.MetaStoreUtils.DEFAULT_DATABASE_N
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -102,7 +104,15 @@ public class Warehouse {
    */
   public FileSystem getFs(Path f) throws MetaException {
     if (f.toUri().getScheme().equals("pfile") || f.toString().startsWith("pfile:")) {
-      return new ProxyLocalFileSystem();
+      ProxyLocalFileSystem fs = new ProxyLocalFileSystem();
+      try {
+        fs.initialize(new URI("pfile:///"), conf);
+      } catch (URISyntaxException ex) {
+        MetaStoreUtils.logAndThrowMetaException(ex);
+      } catch (IOException ex) {
+        MetaStoreUtils.logAndThrowMetaException(ex);
+      }
+      return fs;
     }
     try {
       return f.getFileSystem(conf);
