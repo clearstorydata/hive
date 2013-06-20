@@ -101,7 +101,7 @@ public class Warehouse {
    * Helper functions to convert IOException to MetaException
    */
   public FileSystem getFs(Path f) throws MetaException {
-    if (f.toUri().getScheme().equals("pfile")) {
+    if (f.toUri().getScheme().equals("pfile") || f.toString().startsWith("pfile:")) {
       return new ProxyLocalFileSystem();
     }
     try {
@@ -406,6 +406,8 @@ public class Warehouse {
     } catch (IOException e) {
       closeFs(fs);
       MetaStoreUtils.logAndThrowMetaException(e);
+    } catch (NullPointerException e) {
+      throw new RuntimeException("isDir failed for path " + f, e);
     }
     return true;
   }
