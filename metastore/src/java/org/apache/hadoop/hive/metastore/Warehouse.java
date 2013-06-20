@@ -103,7 +103,7 @@ public class Warehouse {
    * Helper functions to convert IOException to MetaException
    */
   public FileSystem getFs(Path f) throws MetaException {
-    if (f.toUri().getScheme().equals("pfile") || f.toString().startsWith("pfile:")) {
+    if (f.toString().startsWith("pfile:")) {
       ProxyLocalFileSystem fs = new ProxyLocalFileSystem();
       try {
         fs.initialize(new URI("pfile:///"), conf);
