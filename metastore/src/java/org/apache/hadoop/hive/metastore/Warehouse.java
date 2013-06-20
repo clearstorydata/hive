@@ -151,8 +151,12 @@ public class Warehouse {
       return path;
     }
     FileSystem fs = getFs(path);
-    return (new Path(fs.getUri().getScheme(), fs.getUri().getAuthority(), path
-        .toUri().getPath()));
+    try {
+      return (new Path(fs.getUri().getScheme(), fs.getUri().getAuthority(), path
+          .toUri().getPath()));
+    } catch (NullPointerException ex) {
+      throw new RuntimeException("getDnsPath failed for " + path, ex);
+    }
   }
 
   /**
