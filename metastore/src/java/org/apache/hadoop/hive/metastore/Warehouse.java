@@ -22,6 +22,8 @@ import static org.apache.hadoop.hive.metastore.MetaStoreUtils.DEFAULT_DATABASE_N
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -40,6 +42,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.ProxyLocalFileSystem;
 import org.apache.hadoop.fs.permission.FsAction;
 import org.apache.hadoop.hive.common.FileUtils;
 import org.apache.hadoop.hive.common.JavaUtils;
@@ -100,6 +103,17 @@ public class Warehouse {
    * Helper functions to convert IOException to MetaException
    */
   public FileSystem getFs(Path f) throws MetaException {
+    if (f.toString().startsWith("pfile:")) {
+      ProxyLocalFileSystem fs = new ProxyLocalFileSystem();
+      try {
+        fs.initialize(new URI("pfile:///"), conf);
+      } catch (URISyntaxException ex) {
+        MetaStoreUtils.logAndThrowMetaException(ex);
+      } catch (IOException ex) {
+        MetaStoreUtils.logAndThrowMetaException(ex);
+      }
+      return fs;
+    }
     try {
       return f.getFileSystem(conf);
     } catch (IOException e) {
@@ -133,9 +147,16 @@ public class Warehouse {
    * @return Path with canonical scheme and authority
    */
   public Path getDnsPath(Path path) throws MetaException {
+    if (path.toString().startsWith("pfile:")) {
+      return path;
+    }
     FileSystem fs = getFs(path);
-    return (new Path(fs.getUri().getScheme(), fs.getUri().getAuthority(), path
-        .toUri().getPath()));
+    try {
+      return (new Path(fs.getUri().getScheme(), fs.getUri().getAuthority(), path
+          .toUri().getPath()));
+    } catch (NullPointerException ex) {
+      throw new RuntimeException("getDnsPath failed for " + path, ex);
+    }
   }
 
   /**
@@ -388,8 +409,12 @@ public class Warehouse {
 
   public boolean isDir(Path f) throws MetaException {
     FileSystem fs = null;
+    Class<? extends FileSystem> fsClass;
     try {
       fs = getFs(f);
+      if (fs == null) {
+        throw new NullPointerException("getFs returned null for " + f);
+      }
       FileStatus fstatus = fs.getFileStatus(f);
       if (!fstatus.isDir()) {
         return false;
@@ -399,6 +424,9 @@ public class Warehouse {
     } catch (IOException e) {
       closeFs(fs);
       MetaStoreUtils.logAndThrowMetaException(e);
+    } catch (NullPointerException e) {
+       throw new RuntimeException("isDir failed for path " + f + ", file system: " +
+         (fs == null ? "null" : fs.getClass().getName()), e);
     }
     return true;
   }
