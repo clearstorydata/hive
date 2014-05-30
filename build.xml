@@ -343,6 +343,14 @@
     </junitreport>
   </target>
 
+  <target name="source-jar" depends="jar"
+          description="Build Java source artifacts">
+    <echo message="Project: ${ant.project.name}"/>
+    <iterate target="source-jar" iterate="${iterate.hive.all}"/>
+    <subant target="source-jar">
+      <fileset dir="." includes="ant/build.xml"/>
+    </subant>
+  </target>
 
   <target name="hive-exec-test-jar" depends="jar,mvn-taskdef"
           description="Build Java test artifacts for QL">
@@ -1112,7 +1120,7 @@
 	     uri="urn:maven-artifact-ant" classpathref="maven-ant-tasks.classpath" />
   </target>
   
-  <target name="maven-build" depends="package" description="Build Maven artifacts">
+  <target name="maven-build" depends="package,source-jar" description="Build Maven artifacts">
     <echo message="Project: ${ant.project.name}"/>
     <!-- create jars, poms licences directory -->
     <mkdir dir="${mvn.jar.dir}" />
@@ -1148,6 +1156,34 @@
     <copy file="${build.dir.hive}/service/hive-service-${version}.jar"
           todir="${mvn.jar.dir}" />
     <copy file="${build.dir.hive}/shims/hive-shims-${version}.jar"
+          todir="${mvn.jar.dir}" />
+
+    <!-- copy the source jars  -->
+    <copy file="${build.dir.hive}/anttasks/hive-anttasks-${version}-sources.jar"
+          todir="${mvn.jar.dir}" />
+    <copy file="${build.dir.hive}/beeline/hive-beeline-${version}-sources.jar"
+          todir="${mvn.jar.dir}" />
+    <copy file="${build.dir.hive}/cli/hive-cli-${version}-sources.jar"
+          todir="${mvn.jar.dir}" />
+    <copy file="${build.dir.hive}/common/hive-common-${version}-sources.jar"
+          todir="${mvn.jar.dir}" />
+    <copy file="${build.dir.hive}/contrib/hive-contrib-${version}-sources.jar"
+          todir="${mvn.jar.dir}" />
+    <copy file="${build.dir.hive}/hbase-handler/hive-hbase-handler-${version}-sources.jar"
+          todir="${mvn.jar.dir}" />
+    <copy file="${build.dir.hive}/hwi/hive-hwi-${version}-sources.jar"
+          todir="${mvn.jar.dir}" />
+    <copy file="${build.dir.hive}/jdbc/hive-jdbc-${version}-sources.jar"
+          todir="${mvn.jar.dir}" />
+    <copy file="${build.dir.hive}/metastore/hive-metastore-${version}-sources.jar"
+          todir="${mvn.jar.dir}" />
+    <copy file="${build.dir.hive}/ql/hive-exec-${version}-sources.jar"
+          todir="${mvn.jar.dir}" />
+    <copy file="${build.dir.hive}/serde/hive-serde-${version}-sources.jar"
+          todir="${mvn.jar.dir}" />
+    <copy file="${build.dir.hive}/service/hive-service-${version}-sources.jar"
+          todir="${mvn.jar.dir}" />
+    <copy file="${build.dir.hive}/shims/hive-shims-${version}-sources.jar"
           todir="${mvn.jar.dir}" />
 
     <!-- copy over maven pom files created using the make-pom target and rename to maven convention -->
@@ -1221,6 +1257,8 @@
               url="${mvn.staging.repo.url}" />
           <attach file="${mvn.jar.dir}/hive-${hive.project}-${version}.jar.asc"
                   type="jar.asc"/>
+          <attach file="${mvn.jar.dir}/hive-${hive.project}-${version}-sources.jar"
+                  type="jar" classifier="sources"/>
           <attach file="${mvn.pom.dir}/hive-${hive.project}-${version}.pom.asc"
                   type="pom.asc"/>
           <attach file="${shark.deploy.javadoc.dir}/hive-${hive.project}-${version}-javadoc.jar"
@@ -1236,6 +1274,8 @@
           <artifact:install
               file="${mvn.jar.dir}/hive-${hive.project}-${version}.jar">
             <pom refid="hive.project.pom" />
+            <attach file="${mvn.jar.dir}/hive-${hive.project}-${version}-sources.jar"
+              type="jar" classifier="sources"/>
           </artifact:install>
         </then>
       </elseif>
@@ -1249,8 +1289,21 @@
             <arg value="-DrepositoryId=${mvn.publish.repo}" />
             <arg value="-DpomFile=${mvn.pom.dir}/hive-${hive.project}-${version}.pom" />
             <arg value="-Dfile=${mvn.jar.dir}/hive-${hive.project}-${version}.jar" />
+            <arg value="-Dsources=${mvn.jar.dir}/hive-${hive.project}-${version}-sources.jar" />
           </artifact:mvn>
           <echo message="Deploying to ${mvn.publish.repo}, ${mvn.publish.repoUrl}"/>
+          <artifact:mvn>
+            <arg value="org.apache.maven.plugins:maven-deploy-plugin:2.6:deploy-file" />
+            <arg value="-DgroupId=org.apache.hive" />
+            <arg value="-DartifactId=hive-${hive.project}" />
+            <arg value="-Dversion=${version}" />
+            <arg value="-Durl=${mvn.publish.repoUrl}" />
+            <arg value="-DrepositoryId=${mvn.publish.repo}" />
+            <arg value="-DgeneratePom=false" />
+            <arg value="-Dfile=${mvn.jar.dir}/hive-${hive.project}-${version}-sources.jar" />
+            <arg value="-Dpackaging=java-source" />
+            <arg value="-Dclassifier=sources" />
+           </artifact:mvn>
         </then>
       </elseif>
       <else>
