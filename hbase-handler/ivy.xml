@@ -70,5 +70,6 @@
       <exclude org="commons-daemon" module="commons-daemon"/><!--bad POM-->
       <exclude org="org.apache.commons" module="commons-daemon"/><!--bad POM-->
     </dependency>
+    <override org="log4j" module="log4j" rev="${log4j.version}" />
   </dependencies>
 </ivy-module>

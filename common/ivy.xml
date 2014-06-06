@@ -44,5 +44,6 @@
     <dependency org="commons-lang" name="commons-lang" rev="${commons-lang.version}"/>
     <dependency org="log4j" name="log4j" rev="${log4j.version}"
                 transitive="false"/>
+    <override org="log4j" module="log4j" rev="${log4j.version}" />
   </dependencies>
 </ivy-module>

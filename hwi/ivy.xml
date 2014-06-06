@@ -39,5 +39,6 @@
     <dependency org="commons-httpclient" name="commons-httpclient" rev="${commons-httpclient.version}"
                 conf="test->default"
                 transitive="false"/>
+    <override org="log4j" module="log4j" rev="${log4j.version}" />
   </dependencies>
 </ivy-module>

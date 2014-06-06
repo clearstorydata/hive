@@ -51,5 +51,6 @@
                 rev="${junit.version}" conf="test->default" />
     <dependency org="org.mockito" name="mockito-all"
                 rev="${mockito-all.version}" conf="test->default" />
+    <override org="log4j" module="log4j" rev="${log4j.version}" />
   </dependencies>
 </ivy-module>

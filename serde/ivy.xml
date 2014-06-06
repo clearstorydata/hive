@@ -40,7 +40,7 @@
                 transitive="false"/>
     <dependency org="org.apache.avro" name="avro-mapred" rev="${avro.version}"
                 transitive="false"/>
-
+    <dependency org="log4j" name="log4j" rev="${log4j.version}" force="true" />
     <!-- Test Dependencies -->
     <dependency org="junit" name="junit" rev="${junit.version}" conf="test->default" />
   </dependencies>

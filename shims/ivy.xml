@@ -169,6 +169,7 @@
     <!-- Test Dependencies -->
     <dependency org="junit" name="junit" rev="${junit.version}" conf="test->default" />
 
+    <override org="log4j" module="log4j" rev="${log4j.version}" />
     <conflict manager="all" />
   </dependencies>
 </ivy-module>

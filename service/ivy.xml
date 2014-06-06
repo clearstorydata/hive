@@ -31,5 +31,6 @@
                 conf="compile->default" />
 
     <!-- Test Dependencies -->
+    <override org="log4j" module="log4j" rev="${log4j.version}" />
   </dependencies>
 </ivy-module>

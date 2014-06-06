@@ -35,5 +35,6 @@
                 conf="compile->default" />
     <dependency org="edu.berkeley.cs.shark" name="hive-shims" rev="${version}"
                 conf="runtime" transitive="false"/>
+    <override org="log4j" module="log4j" rev="${log4j.version}" />
   </dependencies>
 </ivy-module>

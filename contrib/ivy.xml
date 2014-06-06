@@ -28,5 +28,6 @@
   <dependencies>
     <dependency org="edu.berkeley.cs.shark" name="hive-exec" rev="${version}"
                 conf="compile->default" />
+    <override org="log4j" module="log4j" rev="${log4j.version}" />
   </dependencies>
 </ivy-module>
